@@ -1,203 +1,238 @@
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.Map.Entry;
 
-class Student {
+class LibraryItem {
+  private String title;
+  private boolean isAvailable;
 
-    HashMap<Integer, String> student = new HashMap<>();
-    Scanner input = new Scanner(System.in);
+  public LibraryItem(String title) {
+    this.title = title;
+    this.isAvailable = true;
+  }
 
-    // add students
-    void add() {
-        student.put(101, "Niall");
-        student.put(102, "Anna");
+  public String getTitle() {
+    return title;
+  }
+
+  public boolean isAvailable() {
+    return isAvailable;
+  }
+
+  public void borrowItem() {
+    if (isAvailable) {
+      isAvailable = false;
+      System.out.println(title + " has been borrowed.");
+    } else {
+      System.out.println(title + " is currently not available.");
     }
+  }
 
-    // register student
-    void addStudent() {
-
-        System.out.println("Enter your name: ");
-        String name = input.next();
-        System.out.println("Enter your id: ");
-        int id = input.nextInt();
-        student.put(id, name);
+  public void returnItem() {
+    if (!isAvailable) {
+      isAvailable = true;
+      System.out.println(title + " has been returned.");
+    } else {
+      System.out.println(title + " was not borrowed.");
     }
+  }
 }
 
-class Book {
+class Book extends LibraryItem {
+  private String author;
 
-    HashMap<Integer, String> book = new HashMap<>();
+  public Book(String title, String author) {
+    super(title);
+    this.author = author;
+  }
 
-    // add books
-    void add() {
-        book.put(11, "The Fault in our Stars");
-        book.put(22, "A Good Book");
-    }
+  public String getAuthor() {
+    return author;
+  }
 }
 
-class Issue {
+class Vinyl extends LibraryItem {
+  private String artist;
 
-    // store book issued by student
-    HashMap<Integer, String> issue = new HashMap<>();
+  public Vinyl(String title, String artist) {
+    super(title);
+    this.artist = artist;
+  }
 
-    Scanner input = new Scanner(System.in);
+  public String getArtist() {
+    return artist;
+  }
+}
 
-    Book b1 = new Book();
-    Student s1 = new Student();
+class Movie extends LibraryItem {
+  private String director;
 
-    public Issue() {
+  public Movie(String title, String director) {
+    super(title);
+    this.director = director;
+  }
 
-        // add elements to student HashMap
-        s1.add();
+  public String getDirector() {
+    return director;
+  }
+}
 
-        // add elements to book HashMap
-        b1.add();
+public class Main {
+  private static ArrayList<Book> books = new ArrayList<>();
+  private static ArrayList<Vinyl> vinyls = new ArrayList<>();
+  private static ArrayList<Movie> movies = new ArrayList<>();
+
+  public static void main(String[] args) {
+    Scanner scanner = new Scanner(System.in);
+    books.add(new Book("The Fault in Our Stars", "John Green"));
+    books.add(new Book("A Good Book", "Author Name"));
+    vinyls.add(new Vinyl("Abbey Road", "The Beatles"));
+    vinyls.add(new Vinyl("Dark Side of the Moon", "Pink Floyd"));
+    movies.add(new Movie("Inception", "Christopher Nolan"));
+    movies.add(new Movie("The Matrix", "The Wachowskis"));
+
+    while (true) {
+      showOptions();
+      String command = scanner.nextLine();
+      if (command.equals("exit")) {
+        break;
+      }
+      handleCommand(command, scanner);
     }
+    scanner.close();
+  }
 
-    // method to issue book
-    void issueBook(int id) {
+  private static void showOptions() {
+    System.out.println("Enter command (borrow, return, donate, show, exit):");
+  }
 
-        System.out.println("enter a book");
-        String bookName = input.nextLine();
-
-        // check if book is inside the book hashmap
-        if (b1.book.containsValue(bookName)) {
-
-            // get book id to remove it from the book HashMap
-            int bookId = 0;
-            // iterate each entry of hashmap
-            for (Entry<Integer, String> entry : b1.book.entrySet()) {
-
-                // if give value is equal to value from entry
-                // print the corresponding key
-                if (entry.getValue().equals(bookName)) {
-                    bookId = entry.getKey();
-                    break;
-                }
-            }
-
-            // add value of student id and book to issue hashmap
-            issue.put(id, bookName);
-
-            // remove book from the book hashmap
-            b1.book.remove(bookId);
-
-            // get student name from id
-            String name = s1.student.get(id);
-            // print name and issued book
-            System.out.println("Name: " + name);
-            System.out.println("Book: " + bookName);
-            System.out.println("Book issued Congratulation");
-        }
-
-        else {
-            System.out.println("Book doesn't exist");
-            System.out.println("We have following Books:");
-            System.out.println(b1.book);
-        }
-
-    }
-
-    void returnBook(int id) {
-
-        issue.put(101, "A Good Book");
-        
-        if (issue.containsKey(id)) {
-            System.out.println("enter a book to return");
-            String bookName = input.nextLine();
-           
-            //get book id
-            int bookId = 0;
-            // iterate each entry of hashmap
-            for (Entry<Integer, String> entry : b1.book.entrySet()) {
-
-                // if give value is equal to value from entry
-                // print the corresponding key
-                if (entry.getValue().equals(bookName)) {
-                    bookId = entry.getKey();
-                    break;
-                }
-            }
-
-            // check if book is issued
-            if (issue.containsValue(bookName)) {
-
-                // remove issue record form issue HashMap
-                issue.remove(id);
-
-                // add book back to book hashmap
-                b1.book.put(bookId, bookName);
-
-                // print name of student and book
-                // get student name from id
-                String name = s1.student.get(id);
-                System.out.println("Name: " + name);
-                System.out.println("Book: " + bookName);
-                System.out.println("Book returned");
-
-            }
-
-            else {
-                System.out.println("Book is not issued.");
-            }
-
+  private static void handleCommand(String command, Scanner scanner) {
+    switch (command) {
+      case "borrow":
+      case "return":
+      case "donate":
+        System.out.println("Enter item type (book, vinyl, movie):");
+        String itemType = scanner.nextLine();
+        System.out.println("Enter title:");
+        String title = scanner.nextLine();
+        if (command.equals("borrow")) {
+          borrowItem(itemType, title);
+        } else if (command.equals("return")) {
+          returnItem(itemType, title);
         } else {
-            System.out.println("You haven't issued any book");
+          donateItem(itemType, title, scanner);
         }
+        break;
+      case "show":
+        showItems();
+        break;
+      default:
+        System.out.println("Invalid command.");
     }
+  }
 
-    void getPurpose(int id) {
-
-        Issue i1 = new Issue();
-        String purpose;
-        
-        System.out.println("Enter your purpose: return or issue");
-        purpose = input.next();
-
-        if (purpose.equals("issue")) {
-
-            i1.issueBook(id);
-
-        } else if (purpose.equals("return")) {
-
-            i1.returnBook(id);
+  private static void borrowItem(String itemType, String title) {
+    switch (itemType) {
+      case "book":
+        for (Book book : books) {
+          if (book.getTitle().equalsIgnoreCase(title)) {
+            book.borrowItem();
+            return;
+          }
         }
+        break;
+      case "vinyl":
+        for (Vinyl vinyl : vinyls) {
+          if (vinyl.getTitle().equalsIgnoreCase(title)) {
+            vinyl.borrowItem();
+            return;
+          }
+        }
+        break;
+      case "movie":
+        for (Movie movie : movies) {
+          if (movie.getTitle().equalsIgnoreCase(title)) {
+            movie.borrowItem();
+            return;
+          }
+        }
+        break;
+      default:
+        System.out.println("Invalid item type.");
+        return;
     }
-}
+    System.out.println("Item not found.");
+  }
 
-class Main {
-
-    public static void main(String[] args) {
-
-        Issue i1 = new Issue();
-
-        Student s1 = new Student();
-        // add student to student hashmap
-        s1.add();
-
-        Scanner input = new Scanner(System.in);
-
-        System.out.println("Enter your Id: ");
-        
-        int id = input.nextInt();
-
-        // check if student is registered
-        if (s1.student.containsKey(id)) {
-            i1.getPurpose(id);
+  private static void returnItem(String itemType, String title) {
+    switch (itemType) {
+      case "book":
+        for (Book book : books) {
+          if (book.getTitle().equalsIgnoreCase(title)) {
+            book.returnItem();
+            return;
+          }
         }
-
-        // ask if student want to register
-        else {
-            System.out.println("Be a member? yes or no");
-            String answer = input.next();
-            if (answer.equals("yes")) {
-                s1.addStudent();
-                System.out.println("You are registered.");
-                i1.getPurpose(id);
-            } 
-            else {
-                System.out.println("Okay, bye");
-            }
+        break;
+      case "vinyl":
+        for (Vinyl vinyl : vinyls) {
+          if (vinyl.getTitle().equalsIgnoreCase(title)) {
+            vinyl.returnItem();
+            return;
+          }
         }
+        break;
+      case "movie":
+        for (Movie movie : movies) {
+          if (movie.getTitle().equalsIgnoreCase(title)) {
+            movie.returnItem();
+            return;
+          }
+        }
+        break;
+      default:
+        System.out.println("Invalid item type.");
+        return;
     }
+    System.out.println("Item not found.");
+  }
+
+  private static void donateItem(String itemType, String title, Scanner scanner) {
+    switch (itemType) {
+      case "book":
+        System.out.println("Enter author:");
+        String author = scanner.nextLine();
+        books.add(new Book(title, author));
+        System.out.println(title + " by " + author + " has been donated to the library.");
+        break;
+      case "vinyl":
+        System.out.println("Enter artist:");
+        String artist = scanner.nextLine();
+        vinyls.add(new Vinyl(title, artist));
+        System.out.println(title + " by " + artist + " has been donated to the library.");
+        break;
+      case "movie":
+        System.out.println("Enter director:");
+        String director = scanner.nextLine();
+        movies.add(new Movie(title, director));
+        System.out.println(title + " directed by " + director + " has been donated to the library.");
+        break;
+      default:
+        System.out.println("Invalid item type.");
+    }
+  }
+
+  private static void showItems() {
+    System.out.println("Books:");
+    for (Book book : books) {
+      System.out.println(book.getTitle() + " by " + book.getAuthor() + (book.isAvailable() ? " (Available)" : " (Borrowed)"));
+    }
+    System.out.println("Vinyls:");
+    for (Vinyl vinyl : vinyls) {
+      System.out.println(vinyl.getTitle() + " by " + vinyl.getArtist() + (vinyl.isAvailable() ? " (Available)" : " (Borrowed)"));
+    }
+    System.out.println("Movies:");
+    for (Movie movie : movies) {
+      System.out.println(movie.getTitle() + " directed by " + movie.getDirector() + (movie.isAvailable() ? " (Available)" : " (Borrowed)"));
+    }
+  }
 }
